@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Mascotas - Veterinaria "Las patitas"</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 3rem 0;
+        }
+        .search-box {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .card-mascota {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-mascota:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .especie-badge {
+            font-size: 0.8rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <i class="fas fa-heartbeat me-2"></i>
+                Veterinaria "Las patitas" 🐾
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">
+                            <i class="fas fa-home me-1"></i>Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dueños' %}">
+                            <i class="fas fa-users me-1"></i>Dueños
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'mascotas' %}">
+                            <i class="fas fa-paw me-1"></i>Mascotas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'turnos' %}">
+                            <i class="fas fa-calendar-alt me-1"></i>Turnos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección Hero -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-5 fw-bold mb-3">
+                <i class="fas fa-paw me-3"></i>
+                Gestión de Mascotas
+            </h1>
+            <p class="lead">Administra el registro de mascotas y sus datos médicos</p>
+        </div>
+    </section>
+
+    <!-- Contenido principal -->
+    <section class="py-5">
+        <div class="container">
+            <!-- Barra de herramientas -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <form method="GET" class="search-box p-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-0" name="q" 
+                                   placeholder="Buscar por nombre o especie..." 
+                                   value="{{ query }}">
+                            <button class="btn btn-success" type="submit">
+                                <i class="fas fa-search me-2"></i>Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalNuevaMascota">
+                        <i class="fas fa-plus me-2"></i>Nueva Mascota
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resultados de búsqueda -->
+            {% if query %}
+            <div class="alert alert-info">
+                <i class="fas fa-search me-2"></i>
+                Resultados para: <strong>"{{ query }}"</strong>
+                <a href="{% url 'mascotas' %}" class="btn btn-sm btn-outline-info ms-3">
+                    <i class="fas fa-times me-1"></i>Limpiar búsqueda
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Lista de mascotas -->
+            <div class="row g-4">
+                {% for mascota in mascotas %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card card-mascota h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-success rounded-circle p-3 me-3">
+                                    <i class="fas fa-paw fa-2x text-white"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-1">{{ mascota.nombre }}</h5>
+                                    <small class="text-muted">ID: {{ mascota.id }}</small>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="mb-2">
+                                    <i class="fas fa-user text-success me-2"></i>
+                                    <strong>Dueño:</strong> {{ mascota.dueño.nombre }} {{ mascota.dueño.apellido }}
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-dna text-success me-2"></i>
+                                    <strong>Especie:</strong> 
+                                    <span class="badge bg-primary especie-badge">{{ mascota.especie }}</span>
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-venus-mars text-success me-2"></i>
+                                    <strong>Sexo:</strong> 
+                                    {% if mascota.sexo == 'F' %}
+                                        <span class="badge bg-danger">Hembra</span>
+                                    {% else %}
+                                        <span class="badge bg-primary">Macho</span>
+                                    {% endif %}
+                                </p>
+                                <p class="mb-0">
+                                    <i class="fas fa-birthday-cake text-success me-2"></i>
+                                    <strong>Edad:</strong> {{ mascota.edad }} años
+                                </p>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-info">
+                                    <i class="fas fa-calendar me-1"></i>
+                                    {{ mascota.turno_set.count }} turnos
+                                </span>
+                                <div>
+                                    <!-- Botón Ver Turnos -->
+                                    <button class="btn btn-sm btn-outline-success btn-ver-turnos" 
+                                            data-mascota-id="{{ mascota.id }}">
+                                        <i class="fas fa-eye me-1"></i>Ver Turnos
+                                    </button>
+                                
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-paw fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No se encontraron mascotas</h4>
+                    {% if query %}
+                    <p class="text-muted">Intenta con otros términos de búsqueda</p>
+                    {% else %}
+                    <p class="text-muted">Comienza agregando la primera mascota</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Paginación -->
+            {% if mascotas.has_other_pages %}
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if mascotas.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ mascotas.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in mascotas.paginator.page_range %}
+                    <li class="page-item {% if mascotas.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if mascotas.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ mascotas.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Modal para nueva mascota -->
+    <div class="modal fade" id="modalNuevaMascota" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-paw me-2"></i>
+                        Nueva Mascota
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNuevaMascota">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre" class="form-label">Nombre de la Mascota *</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="dueño_id" class="form-label">Dueño *</label>
+                                <select class="form-select" id="dueño_id" name="dueño_id" required>
+                                    <option value="">Seleccionar dueño...</option>
+                                    {% for dueño in dueños %}
+                                    <option value="{{ dueño.id }}">{{ dueño.nombre }} {{ dueño.apellido }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="especie" class="form-label">Especie *</label>
+                                <input type="text" class="form-control" id="especie" name="especie" 
+                                       placeholder="Ej: Perro, Gato, Ave..." required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="sexo" class="form-label">Sexo *</label>
+                                <select class="form-select" id="sexo" name="sexo" required>
+                                    <option value="">Seleccionar...</option>
+                                    <option value="M">Macho</option>
+                                    <option value="F">Hembra</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="edad" class="form-label">Edad (años) *</label>
+                                <input type="number" class="form-control" id="edad" name="edad" 
+                                       min="0" max="30" value="0" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="guardarMascota()">
+                        <i class="fas fa-save me-2"></i>Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver turnos -->
+    <div class="modal fade" id="modalVerTurnos" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-calendar me-2"></i>
+                        Turnos de la Mascota
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="turnosContent">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function guardarMascota() {
+            const form = document.getElementById('formNuevaMascota');
+            const formData = new FormData(form);
+            
+            const data = {
+                nombre: formData.get('nombre'),
+                dueño_id: parseInt(formData.get('dueño_id')),
+                especie: formData.get('especie'),
+                sexo: formData.get('sexo'),
+                edad: parseInt(formData.get('edad'))
+            };
+
+            fetch('{% url "mascotas" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Mascota guardada exitosamente');
+                    location.reload();
+                } else {
+                    alert('Error al guardar: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error al guardar: ' + error);
+            });
+        }
+
+        function verTurnos(mascotaId) {
+            const modal = new bootstrap.Modal(document.getElementById('modalVerTurnos'));
+            modal.show();
+            
+            // Mostrar spinner de carga
+            document.getElementById('turnosContent').innerHTML = `
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando turnos...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Cargando turnos de la mascota...</p>
+                </div>
+            `;
+            
+            // Hacer petición a la API para obtener los turnos
+            fetch(`/api/turnos/${mascotaId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.turnos.length > 0) {
+                    let html = `
+                        <div class="mb-3">
+                            <h6 class="text-info">
+                                <i class="fas fa-calendar me-2"></i>
+                                Historial de Turnos
+                            </h6>
+                        </div>
+                        <div class="row g-3">
+                    `;
+                    
+                    data.turnos.forEach(turno => {
+                        const estadoClass = turno.es_pendiente ? 'success' : 'secondary';
+                        const estadoIcon = turno.es_pendiente ? 'fa-clock' : 'fa-check';
+                        const estadoText = turno.es_pendiente ? 'Pendiente' : 'Completado';
+                        
+                        html += `
+                            <div class="col-12">
+                                <div class="card border-${estadoClass} h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h6 class="card-title mb-0">
+                                                <i class="fas fa-calendar-day text-${estadoClass} me-2"></i>
+                                                Turno #${turno.id}
+                                            </h6>
+                                            <span class="badge bg-${estadoClass}">
+                                                <i class="fas ${estadoIcon} me-1"></i>
+                                                ${estadoText}
+                                            </span>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-1">
+                                                    <i class="fas fa-clock text-muted me-2"></i>
+                                                    <strong>Fecha:</strong> ${turno.fecha}
+                                                </p>
+                                                <p class="mb-1">
+                                                    <i class="fas fa-user text-muted me-2"></i>
+                                                    <strong>Dueño:</strong> ${turno.dueño}
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <p class="mb-0">
+                                                    <i class="fas fa-stethoscope text-muted me-2"></i>
+                                                    <strong>Motivo:</strong> ${turno.motivo}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    
+                    html += '</div>';
+                    document.getElementById('turnosContent').innerHTML = html;
+                } else {
+                    document.getElementById('turnosContent').innerHTML = `
+                        <div class="text-center py-4">
+                            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                            <h6 class="text-muted">No hay turnos registrados</h6>
+                            <p class="text-muted small">Esta mascota aún no tiene turnos programados</p>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error al cargar turnos:', error);
+                document.getElementById('turnosContent').innerHTML = `
+                    <div class="text-center py-4">
+                        <i class="fas fa-exclamation-triangle fa-3x text-danger mb-3"></i>
+                        <h6 class="text-danger">Error al cargar turnos</h6>
+                        <p class="text-muted small">No se pudieron cargar los turnos de la mascota</p>
+                        <button class="btn btn-sm btn-outline-primary" onclick="verTurnos(${mascotaId})">
+                            <i class="fas fa-redo me-1"></i>Reintentar
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // Agregar event listeners cuando el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Event listener para los botones de ver turnos
+            document.addEventListener('click', function(e) {
+                if (e.target.closest('.btn-ver-turnos')) {
+                    const button = e.target.closest('.btn-ver-turnos');
+                    const mascotaId = button.getAttribute('data-mascota-id');
+                    verTurnos(parseInt(mascotaId));
+                }
+            });
+        });
+    </script>
+</body>
+</html>

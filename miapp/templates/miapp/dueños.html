@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Dueños - Veterinaria "Las patitas"</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 0;
+        }
+        .search-box {
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .card-dueño {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card-dueño:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <i class="fas fa-heartbeat me-2"></i>
+                Veterinaria "Las patitas" 🐾
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">
+                            <i class="fas fa-home me-1"></i>Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{% url 'dueños' %}">
+                            <i class="fas fa-users me-1"></i>Dueños
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'mascotas' %}">
+                            <i class="fas fa-paw me-1"></i>Mascotas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'turnos' %}">
+                            <i class="fas fa-calendar-alt me-1"></i>Turnos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección Hero -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-5 fw-bold mb-3">
+                <i class="fas fa-users me-3"></i>
+                Gestión de Dueños
+            </h1>
+            <p class="lead">Administra la información de los dueños de mascotas</p>
+        </div>
+    </section>
+
+    <!-- Contenido principal -->
+    <section class="py-5">
+        <div class="container">
+            <!-- Barra de herramientas -->
+            <div class="row mb-4">
+                <div class="col-md-8">
+                    <form method="GET" class="search-box p-3">
+                        <div class="input-group">
+                            <span class="input-group-text bg-transparent border-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-0" name="q" 
+                                   placeholder="Buscar por nombre o apellido..." 
+                                   value="{{ query }}">
+                            <button class="btn btn-primary" type="submit">
+                                <i class="fas fa-search me-2"></i>Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-md-4 text-end">
+                    <button class="btn btn-success btn-lg" data-bs-toggle="modal" data-bs-target="#modalNuevoDueño">
+                        <i class="fas fa-plus me-2"></i>Nuevo Dueño
+                    </button>
+                </div>
+            </div>
+
+            <!-- Resultados de búsqueda -->
+            {% if query %}
+            <div class="alert alert-info">
+                <i class="fas fa-search me-2"></i>
+                Resultados para: <strong>"{{ query }}"</strong>
+                <a href="{% url 'dueños' %}" class="btn btn-sm btn-outline-info ms-3">
+                    <i class="fas fa-times me-1"></i>Limpiar búsqueda
+                </a>
+            </div>
+            {% endif %}
+
+            <!-- Lista de dueños -->
+            <div class="row g-4">
+                {% for dueño in dueños %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card card-dueño h-100 border-0 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="bg-primary rounded-circle p-3 me-3">
+                                    <i class="fas fa-user fa-2x text-white"></i>
+                                </div>
+                                <div>
+                                    <h5 class="card-title mb-1">{{ dueño.nombre }} {{ dueño.apellido }}</h5>
+                                    <small class="text-muted">ID: {{ dueño.id }}</small>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <p class="mb-2">
+                                    <i class="fas fa-phone text-primary me-2"></i>
+                                    {{ dueño.telefono }}
+                                </p>
+                                <p class="mb-0">
+                                    <i class="fas fa-envelope text-primary me-2"></i>
+                                    {{ dueño.email }}
+                                </p>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="badge bg-info">
+                                    <i class="fas fa-paw me-1"></i>
+                                    {{ dueño.mascota_set.count }} mascotas
+                                </span>
+                                <button class="btn btn-sm btn-outline-primary" 
+                                        onclick="verMascotas({{ dueño.id }})">
+                                    <i class="fas fa-eye me-1"></i>Ver Mascotas
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="col-12 text-center py-5">
+                    <i class="fas fa-users fa-4x text-muted mb-3"></i>
+                    <h4 class="text-muted">No se encontraron dueños</h4>
+                    {% if query %}
+                    <p class="text-muted">Intenta con otros términos de búsqueda</p>
+                    {% else %}
+                    <p class="text-muted">Comienza agregando el primer dueño</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Paginación -->
+            {% if dueños.has_other_pages %}
+            <nav class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if dueños.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ dueños.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in dueños.paginator.page_range %}
+                    <li class="page-item {% if dueños.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    
+                    {% if dueños.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ dueños.next_page_number }}{% if query %}&q={{ query }}{% endif %}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Modal para nuevo dueño -->
+    <div class="modal fade" id="modalNuevoDueño" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-user-plus me-2"></i>
+                        Nuevo Dueño
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formNuevoDueño">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nombre" class="form-label">Nombre *</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="apellido" class="form-label">Apellido *</label>
+                                <input type="text" class="form-control" id="apellido" name="apellido" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="telefono" class="form-label">Teléfono *</label>
+                                <input type="tel" class="form-control" id="telefono" name="telefono" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-success" onclick="guardarDueño()">
+                        <i class="fas fa-save me-2"></i>Guardar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver mascotas -->
+    <div class="modal fade" id="modalVerMascotas" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">
+                        <i class="fas fa-paw me-2"></i>
+                        Mascotas del Dueño
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="mascotasContent">
+                    <div class="text-center">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function guardarDueño() {
+            const form = document.getElementById('formNuevoDueño');
+            const formData = new FormData(form);
+            
+            const data = {
+                nombre: formData.get('nombre'),
+                apellido: formData.get('apellido'),
+                telefono: parseInt(formData.get('telefono')),
+                email: formData.get('email')
+            };
+
+            fetch('{% url "dueños" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Dueño guardado exitosamente');
+                    location.reload();
+                } else {
+                    alert('Error al guardar: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error al guardar: ' + error);
+            });
+        }
+
+        function verMascotas(dueñoId) {
+            const modal = new bootstrap.Modal(document.getElementById('modalVerMascotas'));
+            modal.show();
+            
+            fetch(`/api/mascotas/${dueñoId}/`)
+            .then(response => response.json())
+            .then(data => {
+                const content = document.getElementById('mascotasContent');
+                if (data.success && data.mascotas.length > 0) {
+                    let html = '<div class="row g-3">';
+                    data.mascotas.forEach(mascota => {
+                        html += `
+                            <div class="col-md-6">
+                                <div class="card border-info">
+                                    <div class="card-body text-center">
+                                        <i class="fas fa-paw fa-2x text-info mb-2"></i>
+                                        <h6 class="card-title">${mascota.nombre}</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    html += '</div>';
+                    content.innerHTML = html;
+                } else {
+                    content.innerHTML = '<p class="text-muted text-center">Este dueño no tiene mascotas registradas.</p>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('mascotasContent').innerHTML = 
+                    '<p class="text-danger text-center">Error al cargar las mascotas.</p>';
+            });
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

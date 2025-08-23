@@ -1,13 +1,194 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entrega Coderhouse Django</title>
+    <title>Veterinaria "Las patitas" - Sistema de Gestión</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .hero-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 0;
+        }
+        .card-stats {
+            transition: transform 0.3s ease;
+        }
+        .card-stats:hover {
+            transform: translateY(-5px);
+        }
+        .nav-link {
+            transition: all 0.3s ease;
+        }
+        .nav-link:hover {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+        }
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+        }
+    </style>
 </head>
 <body>
-    <h1>Encabezado 1</h1>
-    <p>{{ mensaje }}</p>
-    <p>{{ alumna }}</p>
+    <!-- Barra de navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'index' %}">
+                <i class="fas fa-heartbeat me-2"></i>
+                Veterinaria "Las patitas" 🐾
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'index' %}">
+                            <i class="fas fa-home me-1"></i>Inicio
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dueños' %}">
+                            <i class="fas fa-users me-1"></i>Dueños
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'mascotas' %}">
+                            <i class="fas fa-paw me-1"></i>Mascotas
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'turnos' %}">
+                            <i class="fas fa-calendar-alt me-1"></i>Turnos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sección Hero -->
+    <section class="hero-section">
+        <div class="container text-center">
+            <h1 class="display-4 fw-bold mb-3">
+                <i class="fas fa-heartbeat me-3"></i>
+                {{ mensaje }}
+            </h1>
+            <p class="lead mb-4">Sistema integral de gestión veterinaria</p>
+            <p class="mb-0">Desarrollado por {{ alumna }}</p>
+        </div>
+    </section>
+
+    <!-- Dashboard de estadísticas -->
+    <section class="py-5">
+        <div class="container">
+            <h2 class="text-center mb-5">Dashboard de la Veterinaria</h2>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card card-stats h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-users fa-3x text-primary"></i>
+                            </div>
+                            <h3 class="card-title text-primary">{{ total_dueños }}</h3>
+                            <p class="card-text">Dueños Registrados</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-stats h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-paw fa-3x text-success"></i>
+                            </div>
+                            <h3 class="card-title text-success">{{ total_mascotas }}</h3>
+                            <p class="card-text">Mascotas Atendidas</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-stats h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-calendar-alt fa-3x text-info"></i>
+                            </div>
+                            <h3 class="card-title text-info">{{ total_turnos }}</h3>
+                            <p class="card-text">Total de Turnos</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-stats h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <div class="mb-3">
+                                <i class="fas fa-clock fa-3x text-warning"></i>
+                            </div>
+                            <h3 class="card-title text-warning">{{ turnos_pendientes }}</h3>
+                            <p class="card-text">Turnos Pendientes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Accesos rápidos -->
+    <section class="py-5 bg-light">
+        <div class="container">
+            <h2 class="text-center mb-5">Accesos Rápidos</h2>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user-plus fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">Gestionar Dueños</h5>
+                            <p class="card-text">Registra y administra la información de los dueños de mascotas.</p>
+                            <a href="{% url 'dueños' %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-right me-2"></i>Ir a Dueños
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-paw fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">Gestionar Mascotas</h5>
+                            <p class="card-text">Administra el registro de mascotas y sus datos médicos.</p>
+                            <a href="{% url 'mascotas' %}" class="btn btn-success">
+                                <i class="fas fa-arrow-right me-2"></i>Ir a Mascotas
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-calendar-plus fa-3x text-info mb-3"></i>
+                            <h5 class="card-title">Gestionar Turnos</h5>
+                            <p class="card-text">Programa y administra las citas y consultas veterinarias.</p>
+                            <a href="{% url 'turnos' %}" class="btn btn-info text-white">
+                                <i class="fas fa-arrow-right me-2"></i>Ir a Turnos
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white py-4">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2025 Veterinaria "Las patitas". Todos los derechos reservados.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
