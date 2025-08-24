@@ -62,7 +62,6 @@ Un sistema completo de gestión para veterinarias desarrollado con Django, que p
 
 5. **Acceder al sistema**
    - **Sitio principal**: http://127.0.0.1:8000/
-   - **Admin Django**: http://127.0.0.1:8000/admin/
 
 ## 📱 Uso del Sistema
 
@@ -133,7 +132,6 @@ Un sistema completo de gestión para veterinarias desarrollado con Django, que p
 - API endpoints para integraciones futuras
 - Estructura modular para nuevas características
 - Sistema de permisos Django integrado
-- Admin personalizado con filtros avanzados
 
 ## 📊 Funcionalidades Avanzadas
 
@@ -181,12 +179,11 @@ Un sistema completo de gestión para veterinarias desarrollado con Django, que p
 
 ## 🔮 Futuras Mejoras
 
-- [ ] Sistema de notificaciones por email
+- [ ] Admin personalizado con filtros avanzados
 - [ ] Calendario visual de turnos
 - [ ] Reportes y estadísticas avanzadas
 - [ ] API REST completa
 - [ ] Aplicación móvil
-- [ ] Integración con sistemas de pago
 - [ ] Historial médico completo
 - [ ] Sistema de vacunas y recordatorios
 
